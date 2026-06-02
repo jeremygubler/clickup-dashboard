@@ -154,7 +154,7 @@ async function loadTasks() {
 
 function getTasksForUser(userId) {
   if (userId === 'all') return allTasks;
-  return allTasks.filter(t => t.assignees && t.assignees.some(a => a.id == userId));
+  return allTasks.filter(t => t.assignees && t.assignees.some(a => String(a.id) === String(userId)));
 }
 
 function renderTabs() {
@@ -170,7 +170,7 @@ function renderTabs() {
   tabsEl.innerHTML = users.map(u => {
     const tasks = getTasksForUser(u.id);
     const danger = tasks.some(t => t.status === 'Ueberfaellig');
-    return `<button class="tab ${activeUser == u.id ? 'active' : ''} ${danger && activeUser != u.id ? 'danger' : ''}" onclick="switchTab(${JSON.stringify(u.id)})">
+    return `<button class="tab ${String(activeUser) === String(u.id) ? 'active' : ''} ${danger && String(activeUser) !== String(u.id) ? 'danger' : ''}" onclick="switchTab('${u.id}')">
       ${u.name}
       <span class="count">${tasks.length}</span>
     </button>`;
@@ -194,8 +194,10 @@ function renderContent() {
     <div class="stat-card ${ueberfaellig > 0 ? 'danger' : ''}"><p>Überfällig</p><span>${ueberfaellig}</span></div>
     <div class="stat-card"><p>Projekte</p><span>${projekte}</span></div>`;
   if (!tasks.length) { projEl.innerHTML = '<div class="empty">Keine offenen Tasks.</div>'; return; }
+  const displayTasks = tasks;
+  const truncated = false;
   const byProjekt = {};
-  tasks.forEach(t => {
+  displayTasks.forEach(t => {
     if (!byProjekt[t.projekt]) byProjekt[t.projekt] = { kunde: t.kunde, tasks: [] };
     byProjekt[t.projekt].tasks.push(t);
   });
@@ -203,7 +205,7 @@ function renderContent() {
     const r = d => d.tasks.some(t => t.status === 'Ueberfaellig') ? 0 : d.tasks.some(t => t.status === 'Diese Woche') ? 1 : 2;
     return r(a[1]) - r(b[1]);
   });
-  projEl.innerHTML = sorted.map(([proj, data]) => `
+  projEl.innerHTML = (truncated ? `<div style="background:var(--warn-bg);color:var(--warn);padding:10px 16px;border-radius:var(--radius);margin-bottom:12px;font-size:13px;">Zeige 50 von ${tasks.length} Tasks — wähle einen Tab für vollständige Ansicht</div>` : '') + sorted.map(([proj, data]) => `
     <div class="project-card">
       <div class="project-header">
         <div><div class="kunde">${data.kunde}</div><div class="name">${proj}</div></div>
