@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KMUcare Team Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f4f1; --surface: #ffffff; --surface2: #f0efe9;
+      --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
+      --text: #1a1a18; --text2: #6b6b67; --text3: #9e9e99;
+      --danger-bg: #fcebeb; --danger: #a32d2d;
+      --warn-bg: #faeeda; --warn: #854f0b;
+      --success-bg: #eaf3de; --success: #3b6d11;
+      --neutral-bg: #f0efe9; --neutral: #5f5e5a;
+      --blue: #185fa5; --blue-bg: #e6f1fb;
+      --radius: 8px; --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18; --surface: #252523; --surface2: #2e2e2b;
+        --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+        --text: #f0efe9; --text2: #a0a09a; --text3: #6b6b67;
+        --danger-bg: #3d1a1a; --danger: #f09595;
+        --warn-bg: #2e2010; --warn: #fac775;
+        --success-bg: #1a2e10; --success: #c0dd97;
+        --neutral-bg: #2e2e2b; --neutral: #b4b2a9;
+        --blue: #85b7eb; --blue-bg: #0c2d4a;
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    header h1 { font-size: 15px; font-weight: 600; }
+    header p { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    #last-updated { font-size: 12px; color: var(--text3); }
+    button { font-family: inherit; font-size: 13px; padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+    button:hover { background: var(--surface2); }
+    button:active { transform: scale(0.98); }
+    button.loading { opacity: 0.6; pointer-events: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.8s linear infinite; display: inline-block; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 24px 48px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+    .tab { font-family: inherit; font-size: 13px; padding: 8px 16px; border: none; background: none; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; border-radius: 0; transition: color 0.15s; }
+    .tab:hover { color: var(--text); background: none; }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 500; }
+    .tab .count { font-size: 11px; background: var(--surface2); color: var(--text3); padding: 1px 6px; border-radius: 10px; margin-left: 6px; }
+    .tab.active .count { background: var(--blue-bg); color: var(--blue); }
+    .tab.danger .count { background: var(--danger-bg); color: var(--danger); }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+    .stat-card p { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .stat-card span { font-size: 28px; font-weight: 600; }
+    .stat-card.danger span { color: var(--danger); }
+    .projects { display: flex; flex-direction: column; gap: 12px; }
+    .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .project-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .project-header .kunde { font-size: 12px; color: var(--text2); margin-bottom: 2px; }
+    .project-header .name { font-size: 15px; font-weight: 500; }
+    .task-count { font-size: 12px; color: var(--text2); background: var(--surface2); padding: 3px 10px; border-radius: var(--radius); }
+    .task-row { border-bottom: 1px solid var(--border); }
+    .task-row:last-child { border-bottom: none; }
+    .task-main { padding: 10px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.1s; }
+    .task-main:hover { background: var(--surface2); }
+    .task-info { flex: 1; min-width: 0; }
+    .task-name { font-size: 14px; color: var(--text); text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-name:hover { color: var(--blue); }
+    .task-sub-count { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .task-assignees { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .task-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .chevron { font-size: 12px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; width: 16px; text-align: center; }
+    .chevron.open { transform: rotate(90deg); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: var(--radius); white-space: nowrap; }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); }
+    .badge.success { background: var(--success-bg); color: var(--success); }
+    .badge.neutral { background: var(--neutral-bg); color: var(--neutral); }
+    .badge.high { background: var(--warn-bg); color: var(--warn); }
+    .subtasks { display: none; border-top: 1px solid var(--border); background: var(--surface2); }
+    .subtasks.open { display: block; }
+    .subtask-row { padding: 8px 16px 8px 36px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .subtask-row:last-child { border-bottom: none; }
+    .subtask-row:hover { background: var(--bg); }
+    .subtask-name { font-size: 13px; color: var(--text2); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .subtask-link { font-size: 12px; color: var(--blue); text-decoration: none; flex-shrink: 0; padding: 3px 8px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); white-space: nowrap; }
+    .subtask-link:hover { background: var(--blue-bg); }
+    #error-msg { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); border-radius: var(--radius-lg); padding: 16px; font-size: 14px; display: none; margin-bottom: 16px; }
+    .empty { text-align: center; padding: 48px 24px; color: var(--text2); font-size: 14px; }
+    .avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>KMUcare Team Dashboard</h1>
+    <p>Offene Tasks nach Mitarbeiter</p>
+  </div>
+  <div class="header-right">
+    <span id="last-updated"></span>
+    <button id="refresh-btn" onclick="loadTasks()">
+      <svg id="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      Aktualisieren
+    </button>
+  </div>
+</header>
+<main>
+  <div id="error-msg"></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="stats" id="stats"></div>
+  <div class="projects" id="projects"></div>
+</main>
+<script>
+const WEBHOOK = 'https://kmc-ch.app.n8n.cloud/webhook/clickup-tasks-all';
+const TEAM_ORDER = [290501385, 99675048, 99669050, 99679630, 99679631, 99679632];
+const COLORS = ['#185fa5','#3b6d11','#854f0b','#0f6e56','#993556','#533ab7'];
+let allTasks = [];
+let activeUser = 'all';
+
+function initials(name) {
+  return name.split(' ').map(p => p[0]).join('').substring(0,2).toUpperCase();
+}
+function statusBadge(s, date) {
+  if (s === 'Ueberfaellig') return `<span class="badge danger">! ${date||'Überfällig'}</span>`;
+  if (s === 'Diese Woche') return `<span class="badge warn">${date||'Diese Woche'}</span>`;
+  if (s === 'OK') return `<span class="badge success">${date||'OK'}</span>`;
+  return `<span class="badge neutral">Kein Datum</span>`;
+}
+function toggleSubtasks(id) {
+  const el = document.getElementById('subs-'+id);
+  const ch = document.getElementById('chev-'+id);
+  if (el) { el.classList.toggle('open'); ch.classList.toggle('open'); }
+}
+
+async function loadTasks() {
+  const btn = document.getElementById('refresh-btn');
+  const icon = document.getElementById('refresh-icon');
+  const errEl = document.getElementById('error-msg');
+  btn.classList.add('loading'); icon.classList.add('spin'); errEl.style.display = 'none';
+  try {
+    const res = await fetch(WEBHOOK);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    allTasks = data.tasks || [];
+    renderTabs();
+    renderContent();
+    const now = new Date();
+    document.getElementById('last-updated').textContent = 'Aktualisiert ' + now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    errEl.textContent = 'Fehler: ' + e.message; errEl.style.display = 'block';
+  } finally { btn.classList.remove('loading'); icon.classList.remove('spin'); }
+}
+
+function getTasksForUser(userId) {
+  if (userId === 'all') return allTasks;
+  return allTasks.filter(t => t.assignees && t.assignees.some(a => a.id == userId));
+}
+
+function renderTabs() {
+  const tabsEl = document.getElementById('tabs');
+  const users = [
+    {id:'all', name:'Alle', color:'#888'},
+    ...TEAM_ORDER.map((id,i) => {
+      const t = allTasks.find(t => t.assignees && t.assignees.some(a => a.id == id));
+      const name = t ? (t.assignees.find(a => a.id == id)||{}).name || String(id) : String(id);
+      return {id, name, color: COLORS[i]};
+    })
+  ];
+  tabsEl.innerHTML = users.map(u => {
+    const tasks = getTasksForUser(u.id);
+    const danger = tasks.some(t => t.status === 'Ueberfaellig');
+    return `<button class="tab ${activeUser == u.id ? 'active' : ''} ${danger && activeUser != u.id ? 'danger' : ''}" onclick="switchTab(${JSON.stringify(u.id)})">
+      ${u.name}
+      <span class="count">${tasks.length}</span>
+    </button>`;
+  }).join('');
+}
+
+function switchTab(userId) {
+  activeUser = userId;
+  renderTabs();
+  renderContent();
+}
+
+function renderContent() {
+  const tasks = getTasksForUser(activeUser);
+  const statsEl = document.getElementById('stats');
+  const projEl = document.getElementById('projects');
+  const ueberfaellig = tasks.filter(t => t.status === 'Ueberfaellig').length;
+  const projekte = new Set(tasks.map(t => t.projekt)).size;
+  statsEl.innerHTML = `
+    <div class="stat-card"><p>Offene Tasks</p><span>${tasks.length}</span></div>
+    <div class="stat-card ${ueberfaellig > 0 ? 'danger' : ''}"><p>Überfällig</p><span>${ueberfaellig}</span></div>
+    <div class="stat-card"><p>Projekte</p><span>${projekte}</span></div>`;
+  if (!tasks.length) { projEl.innerHTML = '<div class="empty">Keine offenen Tasks.</div>'; return; }
+  const byProjekt = {};
+  tasks.forEach(t => {
+    if (!byProjekt[t.projekt]) byProjekt[t.projekt] = { kunde: t.kunde, tasks: [] };
+    byProjekt[t.projekt].tasks.push(t);
+  });
+  const sorted = Object.entries(byProjekt).sort((a,b) => {
+    const r = d => d.tasks.some(t => t.status === 'Ueberfaellig') ? 0 : d.tasks.some(t => t.status === 'Diese Woche') ? 1 : 2;
+    return r(a[1]) - r(b[1]);
+  });
+  projEl.innerHTML = sorted.map(([proj, data]) => `
+    <div class="project-card">
+      <div class="project-header">
+        <div><div class="kunde">${data.kunde}</div><div class="name">${proj}</div></div>
+        <span class="task-count">${data.tasks.length}</span>
+      </div>
+      ${data.tasks.map((t, i) => {
+        const tid = (proj+i).replace(/\W/g,'');
+        const hasSubs = t.subtasks && t.subtasks.length > 0;
+        const otherAssignees = activeUser !== 'all' ? '' :
+          (t.assignees||[]).map((a,ai) => `<span class="avatar" style="background:${COLORS[TEAM_ORDER.indexOf(a.id)]||'#888'}22;color:${COLORS[TEAM_ORDER.indexOf(a.id)]||'#888'}">${initials(a.name)}</span>`).join(' ');
+        return `
+        <div class="task-row">
+          <div class="task-main" onclick="${hasSubs ? `toggleSubtasks('${tid}')` : `window.open('${t.link}','_blank')`}">
+            ${hasSubs ? `<span class="chevron" id="chev-${tid}">›</span>` : '<span style="width:16px;flex-shrink:0"></span>'}
+            <div class="task-info">
+              <a href="${t.link}" class="task-name" target="_blank" rel="noopener" onclick="event.stopPropagation()">${t.task}</a>
+              ${hasSubs ? `<div class="task-sub-count">${t.subtasks.length} Unteraufgabe${t.subtasks.length>1?'n':''}</div>` : ''}
+              ${activeUser === 'all' && t.assignees && t.assignees.length ? `<div class="task-assignees">${t.assignees.map(a=>a.name).join(', ')}</div>` : ''}
+            </div>
+            <div class="task-meta">
+              ${t.prioritaet === 'Hoch' ? '<span class="badge high">Hoch</span>' : ''}
+              ${statusBadge(t.status, t.dueDate)}
+            </div>
+          </div>
+          ${hasSubs ? `<div class="subtasks" id="subs-${tid}">
+            ${t.subtasks.map(s=>`<div class="subtask-row"><span class="subtask-name">${s.name}</span><a href="${s.url}" class="subtask-link" target="_blank">In ClickUp öffnen ↗</a></div>`).join('')}
+          </div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+loadTasks();
+</script>
+</body>
+</html>
