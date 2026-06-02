@@ -6,252 +6,84 @@
   <title>ClickUp Dashboard — Jeremy</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f5f4f1;
-      --surface: #ffffff;
-      --surface2: #f0efe9;
-      --border: rgba(0,0,0,0.08);
-      --border2: rgba(0,0,0,0.14);
-      --text: #1a1a18;
-      --text2: #6b6b67;
-      --text3: #9e9e99;
-      --danger-bg: #fcebeb;
-      --danger: #a32d2d;
-      --warn-bg: #faeeda;
-      --warn: #854f0b;
-      --success-bg: #eaf3de;
-      --success: #3b6d11;
-      --neutral-bg: #f0efe9;
-      --neutral: #5f5e5a;
-      --blue: #185fa5;
-      --blue-bg: #e6f1fb;
-      --radius: 8px;
-      --radius-lg: 12px;
+      --bg: #f5f4f1; --surface: #ffffff; --surface2: #f0efe9;
+      --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
+      --text: #1a1a18; --text2: #6b6b67; --text3: #9e9e99;
+      --danger-bg: #fcebeb; --danger: #a32d2d;
+      --warn-bg: #faeeda; --warn: #854f0b;
+      --success-bg: #eaf3de; --success: #3b6d11;
+      --neutral-bg: #f0efe9; --neutral: #5f5e5a;
+      --blue: #185fa5; --blue-bg: #e6f1fb;
+      --radius: 8px; --radius-lg: 12px;
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #1a1a18;
-        --surface: #252523;
-        --surface2: #2e2e2b;
-        --border: rgba(255,255,255,0.08);
-        --border2: rgba(255,255,255,0.14);
-        --text: #f0efe9;
-        --text2: #a0a09a;
-        --text3: #6b6b67;
-        --danger-bg: #3d1a1a;
-        --danger: #f09595;
-        --warn-bg: #2e2010;
-        --warn: #fac775;
-        --success-bg: #1a2e10;
-        --success: #c0dd97;
-        --neutral-bg: #2e2e2b;
-        --neutral: #b4b2a9;
-        --blue: #85b7eb;
-        --blue-bg: #0c2d4a;
+        --bg: #1a1a18; --surface: #252523; --surface2: #2e2e2b;
+        --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+        --text: #f0efe9; --text2: #a0a09a; --text3: #6b6b67;
+        --danger-bg: #3d1a1a; --danger: #f09595;
+        --warn-bg: #2e2010; --warn: #fac775;
+        --success-bg: #1a2e10; --success: #c0dd97;
+        --neutral-bg: #2e2e2b; --neutral: #b4b2a9;
+        --blue: #85b7eb; --blue-bg: #0c2d4a;
       }
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 0;
-    }
-
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    header p {
-      font-size: 12px;
-      color: var(--text2);
-      margin-top: 1px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    #last-updated {
-      font-size: 12px;
-      color: var(--text3);
-    }
-
-    button {
-      font-family: inherit;
-      font-size: 13px;
-      padding: 6px 14px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border2);
-      background: var(--surface);
-      color: var(--text);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s;
-    }
-
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    header h1 { font-size: 15px; font-weight: 600; }
+    header p { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    #last-updated { font-size: 12px; color: var(--text3); }
+    button { font-family: inherit; font-size: 13px; padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
     button:hover { background: var(--surface2); }
     button:active { transform: scale(0.98); }
     button.loading { opacity: 0.6; pointer-events: none; }
-
-    .spin { display: inline-block; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 24px 24px 48px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-    }
-
+    .spin { animation: spin 0.8s linear infinite; display: inline-block; }
+    main { max-width: 900px; margin: 0 auto; padding: 24px 24px 48px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
     .stat-card p { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
     .stat-card span { font-size: 28px; font-weight: 600; }
     .stat-card.danger span { color: var(--danger); }
-    .stat-card.warn span { color: var(--warn); }
-
     .projects { display: flex; flex-direction: column; gap: 12px; }
-
-    .project-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-    }
-
-    .project-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
+    .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .project-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .project-header .kunde { font-size: 12px; color: var(--text2); margin-bottom: 2px; }
     .project-header .name { font-size: 15px; font-weight: 500; }
-
-    .task-count {
-      font-size: 12px;
-      color: var(--text2);
-      background: var(--surface2);
-      padding: 3px 10px;
-      border-radius: var(--radius);
-    }
-
-    .task-row {
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .task-count { font-size: 12px; color: var(--text2); background: var(--surface2); padding: 3px 10px; border-radius: var(--radius); }
+    .task-row { border-bottom: 1px solid var(--border); }
     .task-row:last-child { border-bottom: none; }
-
-    .task-row:hover { background: var(--surface2); }
-
+    .task-main { padding: 10px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.1s; }
+    .task-main:hover { background: var(--surface2); }
     .task-info { flex: 1; min-width: 0; }
-
-    .task-name {
-      font-size: 14px;
-      color: var(--text);
-      text-decoration: none;
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
+    .task-name { font-size: 14px; color: var(--text); text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .task-name:hover { color: var(--blue); }
-
-    .task-sub {
-      font-size: 12px;
-      color: var(--text3);
-      margin-top: 2px;
-    }
-
-    .task-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 8px;
-      border-radius: var(--radius);
-      white-space: nowrap;
-    }
-
+    .task-sub-count { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .task-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .chevron { font-size: 12px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; width: 16px; text-align: center; }
+    .chevron.open { transform: rotate(90deg); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: var(--radius); white-space: nowrap; }
     .badge.danger { background: var(--danger-bg); color: var(--danger); }
     .badge.warn { background: var(--warn-bg); color: var(--warn); }
     .badge.success { background: var(--success-bg); color: var(--success); }
     .badge.neutral { background: var(--neutral-bg); color: var(--neutral); }
     .badge.high { background: var(--warn-bg); color: var(--warn); }
-
-    #error-msg {
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: 1px solid var(--danger);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      font-size: 14px;
-      display: none;
-      margin-bottom: 16px;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--text2);
-      font-size: 14px;
-    }
-
-    @media (max-width: 600px) {
-      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .stat-card { padding: 12px; }
-      .stat-card span { font-size: 22px; }
-      main { padding: 16px 16px 48px; }
-    }
+    .subtasks { display: none; border-top: 1px solid var(--border); background: var(--surface2); }
+    .subtasks.open { display: block; }
+    .subtask-row { padding: 8px 16px 8px 36px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .subtask-row:last-child { border-bottom: none; }
+    .subtask-row:hover { background: var(--bg); }
+    .subtask-name { font-size: 13px; color: var(--text2); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .subtask-link { font-size: 12px; color: var(--blue); text-decoration: none; flex-shrink: 0; padding: 3px 8px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); white-space: nowrap; }
+    .subtask-link:hover { background: var(--blue-bg); }
+    #error-msg { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); border-radius: var(--radius-lg); padding: 16px; font-size: 14px; display: none; margin-bottom: 16px; }
+    .empty { text-align: center; padding: 48px 24px; color: var(--text2); font-size: 14px; }
+    @media (max-width: 600px) { .stats { gap: 8px; } .stat-card { padding: 12px; } .stat-card span { font-size: 22px; } main { padding: 16px 16px 48px; } }
   </style>
 </head>
 <body>
-
 <header>
   <div>
     <h1>ClickUp Dashboard</h1>
@@ -265,13 +97,11 @@
     </button>
   </div>
 </header>
-
 <main>
   <div id="error-msg"></div>
   <div class="stats" id="stats"></div>
   <div class="projects" id="projects"></div>
 </main>
-
 <script>
 const WEBHOOK = 'https://kmc-ch.app.n8n.cloud/webhook/clickup-tasks';
 
@@ -282,6 +112,14 @@ function statusBadge(s, date) {
   return `<span class="badge neutral">Kein Datum</span>`;
 }
 
+function toggleSubtasks(taskId) {
+  const el = document.getElementById('subs-' + taskId);
+  const ch = document.getElementById('chev-' + taskId);
+  if (!el) return;
+  el.classList.toggle('open');
+  ch.classList.toggle('open');
+}
+
 async function loadTasks() {
   const btn = document.getElementById('refresh-btn');
   const icon = document.getElementById('refresh-icon');
@@ -289,18 +127,15 @@ async function loadTasks() {
   btn.classList.add('loading');
   icon.classList.add('spin');
   errEl.style.display = 'none';
-
   try {
     const res = await fetch(WEBHOOK);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const tasks = data.tasks || [];
-    render(tasks);
+    render(data.tasks || []);
     const now = new Date();
-    document.getElementById('last-updated').textContent =
-      'Aktualisiert ' + now.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('last-updated').textContent = 'Aktualisiert ' + now.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
   } catch(e) {
-    errEl.textContent = 'Fehler beim Laden der Tasks. Ist der n8n Webhook aktiv? (' + e.message + ')';
+    errEl.textContent = 'Fehler: ' + e.message;
     errEl.style.display = 'block';
   } finally {
     btn.classList.remove('loading');
@@ -311,68 +146,55 @@ async function loadTasks() {
 function render(tasks) {
   const statsEl = document.getElementById('stats');
   const projEl = document.getElementById('projects');
-
   const ueberfaellig = tasks.filter(t => t.status === 'Ueberfaellig').length;
-  const dieseWoche = tasks.filter(t => t.status === 'Diese Woche').length;
   const projekte = new Set(tasks.map(t => t.projekt)).size;
-
   statsEl.innerHTML = `
-    <div class="stat-card">
-      <p>Offene Tasks</p>
-      <span>${tasks.length}</span>
-    </div>
-    <div class="stat-card ${ueberfaellig > 0 ? 'danger' : ''}">
-      <p>Überfällig</p>
-      <span>${ueberfaellig}</span>
-    </div>
-    <div class="stat-card">
-      <p>Projekte</p>
-      <span>${projekte}</span>
-    </div>
-  `;
-
-  if (tasks.length === 0) {
-    projEl.innerHTML = '<div class="empty">Keine offenen Tasks gefunden.</div>';
-    return;
-  }
-
+    <div class="stat-card"><p>Offene Tasks</p><span>${tasks.length}</span></div>
+    <div class="stat-card ${ueberfaellig > 0 ? 'danger' : ''}"><p>Überfällig</p><span>${ueberfaellig}</span></div>
+    <div class="stat-card"><p>Projekte</p><span>${projekte}</span></div>`;
+  if (!tasks.length) { projEl.innerHTML = '<div class="empty">Keine offenen Tasks.</div>'; return; }
   const byProjekt = {};
   tasks.forEach(t => {
     if (!byProjekt[t.projekt]) byProjekt[t.projekt] = { kunde: t.kunde, tasks: [] };
     byProjekt[t.projekt].tasks.push(t);
   });
-
   const sorted = Object.entries(byProjekt).sort((a, b) => {
-    const rank = d => d.tasks.some(t => t.status === 'Ueberfaellig') ? 0 :
-                      d.tasks.some(t => t.status === 'Diese Woche') ? 1 : 2;
-    return rank(a[1]) - rank(b[1]);
+    const r = d => d.tasks.some(t => t.status === 'Ueberfaellig') ? 0 : d.tasks.some(t => t.status === 'Diese Woche') ? 1 : 2;
+    return r(a[1]) - r(b[1]);
   });
-
   projEl.innerHTML = sorted.map(([proj, data]) => `
     <div class="project-card">
       <div class="project-header">
-        <div>
-          <div class="kunde">${data.kunde}</div>
-          <div class="name">${proj}</div>
-        </div>
+        <div><div class="kunde">${data.kunde}</div><div class="name">${proj}</div></div>
         <span class="task-count">${data.tasks.length}</span>
       </div>
-      ${data.tasks.map(t => `
+      ${data.tasks.map((t, i) => {
+        const tid = proj.replace(/\W/g,'') + i;
+        const hasSubs = t.subtasks && t.subtasks.length > 0;
+        return `
         <div class="task-row">
-          <div class="task-info">
-            <a href="${t.link}" class="task-name" target="_blank" rel="noopener">${t.task}</a>
-            ${t.subtasks && t.subtasks.length > 0
-              ? `<div class="task-sub">${t.subtasks.length} Unteraufgabe${t.subtasks.length > 1 ? 'n' : ''}</div>`
-              : ''}
+          <div class="task-main" onclick="${hasSubs ? `toggleSubtasks('${tid}')` : `window.open('${t.link}','_blank')`}">
+            ${hasSubs ? `<span class="chevron" id="chev-${tid}">›</span>` : '<span style="width:16px;flex-shrink:0"></span>'}
+            <div class="task-info">
+              <a href="${t.link}" class="task-name" target="_blank" rel="noopener" onclick="event.stopPropagation()">${t.task}</a>
+              ${hasSubs ? `<div class="task-sub-count">${t.subtasks.length} Unteraufgabe${t.subtasks.length > 1 ? 'n' : ''}</div>` : ''}
+            </div>
+            <div class="task-meta">
+              ${t.prioritaet === 'Hoch' ? '<span class="badge high">Hoch</span>' : ''}
+              ${statusBadge(t.status, t.dueDate)}
+            </div>
           </div>
-          <div class="task-meta">
-            ${t.prioritaet === 'Hoch' ? '<span class="badge high">Hoch</span>' : ''}
-            ${statusBadge(t.status, t.dueDate)}
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
+          ${hasSubs ? `
+          <div class="subtasks" id="subs-${tid}">
+            ${t.subtasks.map(s => `
+            <div class="subtask-row">
+              <span class="subtask-name">${s.name}</span>
+              <a href="${s.url}" class="subtask-link" target="_blank" rel="noopener">In ClickUp öffnen ↗</a>
+            </div>`).join('')}
+          </div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
 }
 
 loadTasks();
