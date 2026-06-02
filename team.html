@@ -88,6 +88,12 @@
     .subtask-link:hover { background: var(--blue-bg); }
     #error-msg { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); border-radius: var(--radius-lg); padding: 16px; font-size: 14px; display: none; margin-bottom: 16px; }
     .empty { text-align: center; padding: 48px 24px; color: var(--text2); font-size: 14px; }
+    .search-wrap { position: relative; margin-bottom: 16px; }
+    .search-wrap input { width: 100%; padding: 8px 12px 8px 34px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text); font-family: inherit; font-size: 14px; }
+    .search-wrap input:focus { outline: none; border-color: var(--blue); }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+    .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3); cursor: pointer; padding: 2px; font-size: 14px; line-height: 1; display: none; }
+    .search-clear.visible { display: block; }
     .avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
   </style>
 </head>
@@ -108,6 +114,11 @@
 <main>
   <div id="error-msg"></div>
   <div class="tabs" id="tabs"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search-input" placeholder="Tasks suchen..." oninput="onSearch(this.value)">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+  </div>
   <div class="stats" id="stats"></div>
   <div class="projects" id="projects"></div>
 </main>
@@ -117,6 +128,7 @@ const TEAM_ORDER = [290501385, 99675048, 99669050, 99679630, 99679631, 99679632]
 const COLORS = ['#185fa5','#3b6d11','#854f0b','#0f6e56','#993556','#533ab7'];
 let allTasks = [];
 let activeUser = 'all';
+let searchQuery = '';
 
 function initials(name) {
   return name.split(' ').map(p => p[0]).join('').substring(0,2).toUpperCase();
@@ -126,6 +138,17 @@ function statusBadge(s, date) {
   if (s === 'Diese Woche') return `<span class="badge warn">${date||'Diese Woche'}</span>`;
   if (s === 'OK') return `<span class="badge success">${date||'OK'}</span>`;
   return `<span class="badge neutral">Kein Datum</span>`;
+}
+function onSearch(val) {
+  searchQuery = val.trim().toLowerCase();
+  document.getElementById('search-clear').className = 'search-clear' + (searchQuery ? ' visible' : '');
+  renderContent();
+}
+function clearSearch() {
+  searchQuery = '';
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').className = 'search-clear';
+  renderContent();
 }
 function toggleSubtasks(id) {
   const el = document.getElementById('subs-'+id);
@@ -153,8 +176,11 @@ async function loadTasks() {
 }
 
 function getTasksForUser(userId) {
-  if (userId === 'all') return allTasks;
-  return allTasks.filter(t => t.assignees && t.assignees.some(a => String(a.id) === String(userId)));
+  let tasks = userId === 'all' ? allTasks : allTasks.filter(t => t.assignees && t.assignees.some(a => String(a.id) === String(userId)));
+  if (searchQuery) {
+    tasks = tasks.filter(t => t.task.toLowerCase().includes(searchQuery) || t.projekt.toLowerCase().includes(searchQuery) || t.kunde.toLowerCase().includes(searchQuery));
+  }
+  return tasks;
 }
 
 function renderTabs() {
